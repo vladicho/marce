@@ -46,7 +46,26 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:16px}
 th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
 th{font:500 14px "Bricolage Grotesque",sans-serif;opacity:.75}
 .btn{margin-top:12px;padding:12px 20px;background:var(--walnut);color:var(--btnt);border:0;font-size:16px;font-weight:500;cursor:pointer;border-radius:2px}
-.warn{color:#B0402A;font-weight:600}.lg{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:16px}.lg i{width:22px;height:22px;border:1.5px solid var(--ink);display:inline-block;flex:none}.bar{height:6px;background:var(--line);margin-top:4px}.bar i{display:block;height:100%;background:var(--moss)}.bar i.hi{background:#B0402A}#cap{margin-top:8px;background:var(--card);border:1.5px solid var(--ink);padding:10px 12px;font-size:15px;line-height:1.4;cursor:auto}#cap b{font:800 17px "Bricolage Grotesque",sans-serif;display:block;margin-bottom:2px}#cap .nav{display:flex;gap:8px;margin-top:8px}#cap button{padding:8px 11px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);font:500 15px "Bricolage Grotesque",sans-serif;cursor:pointer}
+.warn{color:#B0402A;font-weight:600}.lg{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:16px}.lg i{width:22px;height:22px;border:1.5px solid var(--ink);display:inline-block;flex:none}.bar{height:6px;background:var(--line);margin-top:4px}.bar i{display:block;height:100%;background:var(--moss)}.bar i.hi{background:#B0402A}
+.loadbox{margin-top:16px;padding:12px;border:1.5px solid var(--line);background:var(--bg)}
+.loadbox h3{margin:0 0 6px;font-size:19px}
+.loadbox p{font-size:13px;opacity:.75;margin:4px 0 8px}
+.loadbox .btn{width:100%;margin-top:8px}
+.loadbox label{margin-top:8px}
+.loadbox input[type=range]{margin:0}
+.loadrow{display:flex;gap:6px;align-items:center;margin:5px 0}
+.loadrow button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 8px;cursor:pointer}
+.loadrow button.sel{border-color:var(--walnut);background:var(--walnut);color:var(--btnt)}
+#failureReport{font-size:15px}
+#failureReport table{font-size:14px}
+.failkey{display:inline-block;width:11px;height:11px;background:#c0392b;margin-right:6px}
+.loadkey{display:inline-block;width:11px;height:11px;background:#ef9b28;margin-right:6px}
+#cap{margin-top:8px;background:var(--card);border:1.5px solid var(--ink);padding:10px 12px;font-size:15px;line-height:1.4;cursor:auto}#cap b{font:800 17px "Bricolage Grotesque",sans-serif;display:block;margin-bottom:2px}#cap .nav{display:flex;gap:8px;margin-top:8px}#cap button{padding:8px 11px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);font:500 15px "Bricolage Grotesque",sans-serif;cursor:pointer}
+
+.break-status{margin-top:10px;padding:10px;border:1px solid var(--line);background:var(--card);font-size:14px;line-height:1.45}
+.break-status.active{border-color:#d66a38;color:#d66a38}
+.break-status.failed{border-color:#9f241e;color:#9f241e;font-weight:700}
+
 </style>
 </head>
 <body>
@@ -78,6 +97,33 @@ th{font:500 14px "Bricolage Grotesque",sans-serif;opacity:.75}
     <input type="range" id="hf" min="0" max="60" step="5" value="10">
     <label for="lm"><span>Resistência da amarra</span><span id="vlm">150 kgf</span></label>
     <input type="range" id="lm" min="50" max="400" step="10" value="150">
+    <div class="loadbox" id="loadControls">
+      <h3>Simular cargas no móvel</h3>
+      <p>Adicione vários pesos, escolha a posição e a direção. Também pode arrastar a esfera laranja no modelo 3D.</p>
+      <div id="loadList" class="loadrow"></div>
+      <button class="btn" id="addLoad" type="button">＋ Adicionar carga</button>
+      <button class="btn" id="removeLoad" type="button" style="background:var(--line);color:var(--ink)">− Remover selecionada</button>
+      <button class="btn" id="forceBreak" type="button" style="width:100%;background:#9f241e;color:white">💥 Forçar quebra</button>
+      <button class="btn" id="resetBreak" type="button" style="width:100%;background:var(--line);color:var(--ink)">↻ Restaurar móvel</button>
+      <div id="breakStatus" class="break-status" role="status" aria-live="polite">Móvel pronto para o ensaio destrutivo virtual.</div>
+
+      <label for="loadKg"><span>Peso aplicado</span><span id="loadKgVal">100 kg</span></label>
+      <input type="range" id="loadKg" min="1" max="2000" step="1" value="100">
+      <label for="loadDir">Direção da força</label>
+      <select id="loadDir">
+        <option value="down">Vertical para baixo</option><option value="up">Vertical para cima</option>
+        <option value="left">Lateral −X</option><option value="right">Lateral +X</option>
+        <option value="front">Lateral +Z</option><option value="back">Lateral −Z</option>
+      </select>
+      <label for="loadX"><span>Posição X</span><span id="loadXVal">0 mm</span></label><input type="range" id="loadX" min="-800" max="800" step="10" value="0">
+      <label for="loadY"><span>Altura Y</span><span id="loadYVal">750 mm</span></label><input type="range" id="loadY" min="0" max="1500" step="10" value="750">
+      <label for="loadZ"><span>Posição Z</span><span id="loadZVal">0 mm</span></label><input type="range" id="loadZ" min="-500" max="500" step="10" value="0">
+      <label for="ramp"><span>Aumentar carga (multiplicador)</span><span id="rampVal">1,0×</span></label>
+      <input type="range" id="ramp" min="1" max="10" step=".1" value="1">
+      <label style="justify-content:flex-start;gap:8px"><input type="checkbox" id="showFailure" checked style="width:auto">Destacar peças e amarras críticas</label>
+      <div class="lg"><i class="loadkey"></i> Carga aplicada</div>
+      <div class="lg"><i style="background:#c0392b"></i> Peça / amarra em risco</div>
+    </div>
     <label style="justify-content:flex-start;gap:8px"><input type="checkbox" id="vec" checked style="width:auto">Mostrar vetores de força</label>
     <label style="justify-content:flex-start;gap:8px"><input type="checkbox" id="vj" checked style="width:auto">Força em cada amarra (A1, A2…)</label>
     <button class="btn" id="bStep" style="width:100%;display:none">▶ Passo a passo da montagem</button>
@@ -97,6 +143,8 @@ th{font:500 14px "Bricolage Grotesque",sans-serif;opacity:.75}
     <button class="btn" id="copy">Copiar lista de corte</button>
     <h2>Análise de forças</h2>
     <div id="an"></div>
+    <h2>Resultado da simulação de ruptura</h2>
+    <div id="failureReport"><p>Adicione ou mova uma carga para calcular quais peças e amarras podem falhar primeiro.</p></div>
   </div>
 </div>
 </div>
@@ -126,6 +174,8 @@ var CFG={
 };
 var NAMES={W:'Largura',D:'Profundidade',H:'Altura',T:'Espessura da tábua',N:'Prateleiras',E:'Ø dos paus da estrutura',B:'Ø dos bastões do tampo'};
 var type='mesa',S={},LS=[],woodColor='#9C6B45';
+var loads=[{x:0,y:750,z:0,kg:100,dir:'down'}],activeLoad=0,FAIL=[],JOINTFAIL=[],loadMarkers=[],dragLoadIndex=-1;
+var breakRAF=null,breaking=false;
 var $=function(i){return document.getElementById(i)};
 
 function buildSliders(){
@@ -386,21 +436,28 @@ function build(P){aIdx=0;
   while(group.children.length){var o=group.children.pop();o.traverse(function(m){if(m.geometry)m.geometry.dispose()})}
   var mat=new THREE.MeshStandardMaterial({map:woodTex(woodColor),roughness:.8});
   var ec=isDark()?0xE7E9E4:0x2A1A10;
-  P.forEach(function(p){
-    if(ST&&p.rod&&STEPOF[p.n]>ST)return;var g=p.rod?new THREE.CylinderGeometry(p.d/2,p.d/2,rodLen(p),12):new THREE.BoxGeometry(p.sx,p.sy,p.sz),m=new THREE.Mesh(g,mat);
+  P.forEach(function(p,pi){
+    if(ST&&p.rod&&STEPOF[p.n]>ST)return;var g=p.rod?new THREE.CylinderGeometry(p.d/2,p.d/2,rodLen(p),12):new THREE.BoxGeometry(p.sx,p.sy,p.sz);
+    var partMat=mat.clone(),failure=FAIL.filter(function(f){return f.index===pi})[0];
+    if($('showFailure').checked&&failure&&failure.util>=.7)partMat.color.set(failure.util>=1?0x9f241e:0xd66a38);
+    var m=new THREE.Mesh(g,partMat);m.userData.partIndex=pi;
     if(p.rod)rodPlace(m,p);else m.position.set(p.px,p.py,p.pz);
     if(NEW&&ST&&p.rod&&STEPOF[p.n]===ST){m.userData.a=1;m.userData.by=m.position.y;m.userData.i=aIdx++;m.visible=false}
     var e=new THREE.LineSegments(new THREE.EdgesGeometry(g,p.rod?40:1),new THREE.LineBasicMaterial({color:ec,transparent:true,opacity:.7}));
     m.add(e);group.add(m);
   });
-  LS.forEach(function(l){if(ST&&l.step>ST)return;var s=S.E*1.5,c=l.col||{q:0xF3C7B8,d:0xC9C9F5,p:0xB5E6D3}[l.t];
+  LS.forEach(function(l,li){if(ST&&l.step>ST)return;var s=S.E*1.5,c=l.col||{q:0xF3C7B8,d:0xC9C9F5,p:0xB5E6D3}[l.t];
+    var jf=JOINTFAIL.filter(function(x){return x.index===li})[0],jointHot=$('showFailure').checked&&jf&&jf.util>=.7;
     var m=ST?ropeMesh(l):new THREE.Mesh(new THREE.BoxGeometry(s,s,s),new THREE.MeshStandardMaterial({color:c,roughness:.9}));
+    if(jointHot&&m.material&&m.material.color)m.material.color.set(jf.util>=1?0x9f241e:0xd66a38);
     if(!ST)m.position.set(l.p[0],l.p[1],l.p[2]);group.add(m);
     if(NEW&&ST&&l.step===ST){m.userData.a=3;m.userData.n=m.geometry.index.count;m.geometry.setDrawRange(0,0);m.userData.i=aIdx++;m.visible=false}
-    if(l.id&&$('vj').checked&&!ST)group.add(lab(l.id,l.p,s,l.col))});
+    if(l.id&&$('vj').checked&&!ST)group.add(lab(l.id,l.p,s,jointHot?0x9f241e:l.col))});
   AR.forEach(function(a){if(ST)return;if(a.j?!$('vj').checked:!$('vec').checked)return;var dir=new THREE.Vector3(a.d[0],a.d[1],a.d[2]).normalize(),len=a.j?Math.max(110,Math.min(450,a.F*0.6)):Math.max(150,Math.min(850,a.F*0.35)),
     tail=new THREE.Vector3(a.t[0],a.t[1],a.t[2]);if(!a.j)tail.addScaledVector(dir,-len);
     group.add(new THREE.ArrowHelper(dir,tail,len,a.c,len*.3,len*.16))});
+  loadMarkers=[];
+  loads.forEach(function(l,i){addLoadMarker(l,i)});
   if(grid)scene.remove(grid);
   grid=new THREE.GridHelper(4000,20,isDark()?0x4a554d:0x9aa096,isDark()?0x2c332e:0xc9ccc4);scene.add(grid);
   target.set(0,S.H/2,0);
@@ -415,12 +472,32 @@ function draw(){
 }
 function resize(){var w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();draw()}
 new ResizeObserver(resize).observe(view);
-var drag=null;
-view.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY};view.setPointerCapture(e.pointerId)});
-view.addEventListener('pointermove',function(e){if(!drag)return;
+var drag=null,raycaster=new THREE.Raycaster(),pointerNDC=new THREE.Vector2(),dragPlane=new THREE.Plane(),dragPoint=new THREE.Vector3();
+function pointerRay(e){
+  var r=renderer.domElement.getBoundingClientRect();
+  pointerNDC.x=((e.clientX-r.left)/r.width)*2-1;pointerNDC.y=-((e.clientY-r.top)/r.height)*2+1;
+  raycaster.setFromCamera(pointerNDC,cam);
+}
+view.addEventListener('pointerdown',function(e){
+  pointerRay(e);var hits=raycaster.intersectObjects(loadMarkers,false),hit=hits.filter(function(h){return h.object.userData.isLoadMarker&&h.object.userData.loadIndex!==undefined})[0];
+  if(hit){dragLoadIndex=hit.object.userData.loadIndex;view.setPointerCapture(e.pointerId);drag=null;return}
+  drag={x:e.clientX,y:e.clientY};view.setPointerCapture(e.pointerId);
+});
+view.addEventListener('pointermove',function(e){
+  if(dragLoadIndex>=0){
+    var l=loads[dragLoadIndex];if(!l)return;pointerRay(e);dragPlane.set(new THREE.Vector3(0,1,0),-l.y);
+    if(raycaster.ray.intersectPlane(dragPlane,dragPoint)){
+      l.x=Math.round(clampN(dragPoint.x,-S.W/2,S.W/2)/10)*10;
+      l.z=Math.round(clampN(dragPoint.z,-S.D/2,S.D/2)/10)*10;
+      activeLoad=dragLoadIndex;updateLoadUI();update();
+    }return;
+  }
+  if(!drag)return;
   rotY-=(e.clientX-drag.x)*.008;rotX=Math.max(.05,Math.min(1.45,rotX+(e.clientY-drag.y)*.008));
-  drag={x:e.clientX,y:e.clientY};draw()});
-view.addEventListener('pointerup',function(){drag=null});
+  drag={x:e.clientX,y:e.clientY};draw();
+});
+function stopPointerDrag(){drag=null;dragLoadIndex=-1}
+view.addEventListener('pointerup',stopPointerDrag);view.addEventListener('pointercancel',stopPointerDrag);
 view.addEventListener('wheel',function(e){e.preventDefault();zoom(e.deltaY>0?1.08:.92)},{passive:false});
 function zoom(f){dist=Math.max(500,Math.min(12000,dist*f));draw()}
 $('zi').onclick=function(){zoom(.85)};$('zo').onclick=function(){zoom(1.18)};
@@ -472,11 +549,227 @@ function render2D(P){
     txt+=s[0]+'\t'+g[k]+'\t'+s[1]+'\t'+s[2]+'\t'+s[3]+'\n'});
   $('rows').innerHTML=rows;render2D.txt=txt;
 }
-function update(){LS=[];var P=parts();PP=P;analyse();build(P);render2D(P);draw()}
+
+/* ---------- Simulador didático de ruptura com cargas em qualquer posição ---------- */
+function loadDirection(d){
+  return ({down:[0,-1,0],up:[0,1,0],left:[-1,0,0],right:[1,0,0],front:[0,0,1],back:[0,0,-1]})[d]||[0,-1,0];
+}
+function clampN(v,a,b){return Math.max(a,Math.min(b,v))}
+function updateLoadUI(){
+  var list=$('loadList');list.innerHTML='';
+  loads.forEach(function(l,i){
+    var b=document.createElement('button');b.type='button';b.textContent='Carga '+(i+1)+(i===activeLoad?' ●':'');
+    if(i===activeLoad)b.className='sel';
+    b.onclick=function(){activeLoad=i;updateLoadUI();update()};
+    list.appendChild(b);
+  });
+  if(!loads.length){loads.push({x:0,y:S.H||750,z:0,kg:100,dir:'down'});activeLoad=0}
+  activeLoad=clampN(activeLoad,0,loads.length-1);
+  var l=loads[activeLoad],W=S.W||1600,D=S.D||900,H=S.H||750;
+  [['X',-W/2,W/2,l.x],['Y',0,H,l.y],['Z',-D/2,D/2,l.z]].forEach(function(a){
+    var el=$('load'+a[0]);el.min=Math.floor(a[1]/10)*10;el.max=Math.ceil(a[2]/10)*10;el.value=clampN(a[3],+el.min,+el.max);
+    $('load'+a[0]+'Val').textContent=Math.round(+el.value)+' mm';
+  });
+  $('loadKg').value=l.kg;$('loadKgVal').textContent=l.kg+' kg';$('loadDir').value=l.dir;
+  $('rampVal').textContent=(+$('ramp').value).toFixed(1).replace('.',',')+'×';
+}
+function loadChanged(){
+  if(!loads.length)return;
+  var l=loads[activeLoad];
+  l.kg=+$('loadKg').value;l.dir=$('loadDir').value;
+  l.x=+$('loadX').value;l.y=+$('loadY').value;l.z=+$('loadZ').value;
+  $('loadKgVal').textContent=l.kg+' kg';
+  ['X','Y','Z'].forEach(function(k){$('load'+k+'Val').textContent=Math.round(l[k.toLowerCase()])+' mm'});
+  update();
+}
+function partGeometry(p){
+  if(p.rod){
+    var len=rodLen(p),d=p.d||S.E||40,mid=[(p.a[0]+p.b[0])/2,(p.a[1]+p.b[1])/2,(p.a[2]+p.b[2])/2];
+    return {mid:mid,area:Math.PI*d*d/4,section:d,len:len,a:p.a,b:p.b};
+  }
+  var dims=[p.sx,p.sy,p.sz].sort(function(a,b){return a-b});
+  return {mid:[p.px,p.py,p.pz],area:dims[0]*dims[1],section:dims[0],len:Math.max(p.sx,p.sy,p.sz),a:null,b:null};
+}
+function pointSegmentDistance(pt,a,b){
+  var ab=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],ap=[pt[0]-a[0],pt[1]-a[1],pt[2]-a[2]];
+  var den=ab[0]*ab[0]+ab[1]*ab[1]+ab[2]*ab[2],t=den?clampN((ap[0]*ab[0]+ap[1]*ab[1]+ap[2]*ab[2])/den,0,1):0;
+  var q=[a[0]+ab[0]*t,a[1]+ab[1]*t,a[2]+ab[2]*t],dx=pt[0]-q[0],dy=pt[1]-q[1],dz=pt[2]-q[2];
+  return Math.sqrt(dx*dx+dy*dy+dz*dz);
+}
+function pointPartDistance(pt,p,g){
+  if(p.rod)return pointSegmentDistance(pt,g.a,g.b);
+  var dx=Math.max(0,Math.abs(pt[0]-p.px)-p.sx/2),dy=Math.max(0,Math.abs(pt[1]-p.py)-p.sy/2),dz=Math.max(0,Math.abs(pt[2]-p.pz)-p.sz/2);
+  return Math.sqrt(dx*dx+dy*dy+dz*dz);
+}
+function simulateFailure(P){
+  var mat=wp(),all=[],strength=mat.s,scale=+$('ramp').value;
+  P.forEach(function(p,i){var g=partGeometry(p);all.push({index:i,name:p.n,geom:g,share:0,util:0,dist:0})});
+  loads.forEach(function(l){
+    var force=l.kg*9.81*scale,pt=[l.x,l.y,l.z],weights=[],sum=0;
+    all.forEach(function(a){
+      var d=pointPartDistance(pt,P[a.index],a.geom),radius=Math.max(30,a.geom.section*1.5),w=1/Math.pow(d+radius,2);
+      weights.push(w);sum+=w;
+    });
+    all.forEach(function(a,i){
+      var share=force*(weights[i]/(sum||1)),g=a.geom,d=pointPartDistance(pt,P[a.index],g);
+      var direction=loadDirection(l.dir),axis=g.a?nm(vs(g.b,g.a)):[0,1,0];
+      var axial=Math.abs(direction[0]*axis[0]+direction[1]*axis[1]+direction[2]*axis[2]);
+      var bending=1+Math.min(4,(d+g.len*.15)/Math.max(80,g.section*3))*(1-axial)*.35;
+      var capacity=Math.max(1,strength*g.area/3);
+      a.share+=share;a.util+=share*bending/capacity;a.dist=d;
+    });
+  });
+  all.sort(function(a,b){return b.util-a.util});
+  FAIL=all;
+  var jLim=(+$('lm').value)*9.81;
+  JOINTFAIL=LS.map(function(l,i){
+    var nearest=loads.reduce(function(best,x){var d=Math.sqrt(Math.pow(x.x-l.p[0],2)+Math.pow(x.y-l.p[1],2)+Math.pow(x.z-l.p[2],2));return d<best.d?{d:d,load:x}:best},{d:Infinity});
+    var f=nearest.load?nearest.load.kg*9.81*scale/(1+nearest.d/Math.max(100,S.E||40)):0;
+    return {index:i,id:l.id||('A'+(i+1)),util:f/jLim,force:f,position:l.p};
+  }).sort(function(a,b){return b.util-a.util});
+  return FAIL;
+}
+function renderFailureReport(){
+  var el=$('failureReport');if(!el)return;
+  var risk=FAIL.filter(function(a){return a.util>=.7}).slice(0,8),j=JOINTFAIL.filter(function(a){return a.util>=.7}).slice(0,6);
+  var max=FAIL[0],scale=+$('ramp').value;
+  var html='<p><b>Carga total aplicada:</b> '+loads.reduce(function(s,l){return s+l.kg},0)*scale+' kg (multiplicador '+scale.toFixed(1)+'×).</p>';
+  html+='<p><b>Peça mais solicitada:</b> '+(max?max.name+' — '+Math.round(max.util*100)+'% do limite didático':'nenhuma')+'.</p>';
+  if(risk.length){
+    html+='<p class="warn">Sequência provável de entrada em falha (da mais solicitada para a menos solicitada):</p><table><thead><tr><th>Ordem</th><th>Peça</th><th>Esforço estimado</th><th>Índice</th></tr></thead><tbody>';
+    risk.forEach(function(a,i){html+='<tr><td>'+(i+1)+'</td><td>'+a.name+'</td><td>'+Math.round(a.share/9.81)+' kgf</td><td class="warn">'+Math.round(a.util*100)+'%</td></tr>'});
+    html+='</tbody></table>';
+  }else html+='<p>Nenhuma peça ultrapassou 70% do limite simplificado neste cenário. Aumente o multiplicador para observar a progressão.</p>';
+  if(j.length){html+='<p class="warn">Amarras / cruzamentos mais solicitados:</p><ul>';j.forEach(function(a){html+='<li>'+a.id+' — '+Math.round(a.util*100)+'% do limite ajustado de amarra</li>'});html+='</ul>'}
+  html+='<p style="font-size:13px;opacity:.75">Modelo heurístico para visualização: distribui a carga pela proximidade e estima utilização por área de seção e resistência selecionada. Não calcula ligações reais, defeitos, nós, flambagem completa ou contato entre peças; não é ensaio, FEA nem dimensionamento para uso estrutural.</p>';
+  el.innerHTML=html;
+}
+function addLoadMarker(l,i){
+  var pos=new THREE.Vector3(l.x,l.y,l.z),dir=loadDirection(l.dir),sphere=new THREE.Mesh(new THREE.SphereGeometry(Math.max(24,(S.E||40)*.65),18,12),new THREE.MeshStandardMaterial({color:0xef9b28,emissive:0x552800,roughness:.4}));
+  sphere.position.copy(pos);sphere.userData.loadIndex=i;sphere.userData.isLoadMarker=true;group.add(sphere);loadMarkers.push(sphere);
+  var len=Math.max(140,Math.min(500,l.kg*1.5));
+  var arrow=new THREE.ArrowHelper(new THREE.Vector3(dir[0],dir[1],dir[2]),pos,len,0xef9b28,len*.22,len*.12);arrow.userData.isLoadMarker=true;group.add(arrow);
+}
+function bindLoadControls(){
+  ['loadKg','loadDir','loadX','loadY','loadZ'].forEach(function(id){$(id).addEventListener('input',loadChanged);$(id).addEventListener('change',loadChanged)});
+  $('ramp').addEventListener('input',function(){updateLoadUI();update()});
+  $('showFailure').onchange=update;
+  $('addLoad').onclick=function(){
+    loads.push({x:0,y:S.H||750,z:0,kg:100,dir:'down'});activeLoad=loads.length-1;updateLoadUI();update();
+  };
+  $('removeLoad').onclick=function(){
+    if(loads.length<=1){loads[0]={x:0,y:S.H||750,z:0,kg:100,dir:'down'};activeLoad=0}
+    else{loads.splice(activeLoad,1);activeLoad=clampN(activeLoad,0,loads.length-1)}
+    updateLoadUI();update();
+  };
+}
+
+
+function stopBreakAnimation(){
+  if(breakRAF!==null)cancelAnimationFrame(breakRAF);
+  breakRAF=null;breaking=false;
+}
+function resetBreak(){
+  stopBreakAnimation();
+  $('ramp').value=1;
+  update();
+  $('breakStatus').className='break-status';
+  $('breakStatus').textContent='Móvel restaurado. Ajuste as cargas e inicie outro ensaio quando quiser.';
+  $('forceBreak').disabled=false;
+}
+function forceBreak(){
+  if(breaking)return;
+  stopBreakAnimation();
+  var status=$('breakStatus'),button=$('forceBreak');
+  button.disabled=true;
+  status.className='break-status active';
+  status.textContent='Calculando o limite estimado e preparando a sequência de ruptura…';
+
+  // A capacidade é estimada pelo modelo didático já existente no simulador.
+  $('ramp').value=1;
+  var P=parts();
+  PP=P;LS=[];analyse();simulateFailure(P);
+  var baseMax=Math.max(0,FAIL.length?FAIL[0].util:0,JOINTFAIL.length?JOINTFAIL[0].util:0);
+  if(!isFinite(baseMax)||baseMax<=0){
+    status.textContent='Não foi possível estimar a ruptura neste cenário. Confira as cargas e tente novamente.';
+    button.disabled=false;return;
+  }
+
+  var multiplier=1/baseMax;
+  if(multiplier>50){
+    $('ramp').value=50;
+    update();
+    status.className='break-status';
+    status.textContent='Mesmo com multiplicador de 50×, o modelo não prevê atingir o limite. Aumente as cargas ou altere a resistência das amarras.';
+    button.disabled=false;return;
+  }
+
+  multiplier=Math.max(1,Math.min(50,multiplier));
+  $('ramp').value=multiplier.toFixed(1);
+  update();
+
+  var critical=FAIL.length?FAIL[0]:null;
+  var criticalName=critical?critical.name:'estrutura';
+  var meshes=group.children.filter(function(m){
+    return m.userData&&m.userData.partIndex!==undefined;
+  }).map(function(m){
+    return {
+      mesh:m,
+      index:m.userData.partIndex,
+      pos:m.position.clone(),
+      quat:m.quaternion.clone(),
+      rot:m.rotation.clone()
+    };
+  });
+  if(!meshes.length){
+    status.textContent='Não encontrei peças 3D para animar. O cálculo foi atualizado, mas a animação não pôde começar.';
+    button.disabled=false;return;
+  }
+
+  // Primeiro rompe a peça mais solicitada; as demais cedem em cascata.
+  meshes.sort(function(a,b){
+    if(critical&&a.index===critical.index)return -1;
+    if(critical&&b.index===critical.index)return 1;
+    return a.index-b.index;
+  });
+  var start=performance.now(),duration=2600,stagger=110;
+  breaking=true;
+  status.textContent='Limite didático estimado em '+multiplier.toFixed(1)+'×. A primeira peça a ceder é: '+criticalName+'.';
+
+  function frame(now){
+    if(!breaking)return;
+    var elapsed=now-start,active=false;
+    meshes.forEach(function(item,i){
+      var t=Math.max(0,Math.min(1,(elapsed-i*stagger)/duration));
+      if(t<1)active=true;
+      if(t<=0)return;
+      var e=t*t*(3-2*t);
+      item.mesh.position.copy(item.pos);
+      item.mesh.position.y-=e*(180+Math.min(220,Math.abs(item.pos.y)*.18));
+      item.mesh.rotation.set(
+        item.rot.x+e*(i%2?-.9:.65),
+        item.rot.y+e*(i%3?-.35:.45),
+        item.rot.z+e*(i%2?.75:-.8)
+      );
+    });
+    draw();
+    if(active){
+      breakRAF=requestAnimationFrame(frame);
+    }else{
+      breakRAF=null;breaking=false;
+      status.className='break-status failed';
+      status.textContent='Ruptura virtual concluída. Multiplicador estimado: '+multiplier.toFixed(1)+'×. Peça crítica inicial: '+criticalName+'. Use “Restaurar móvel” para recomeçar.';
+      button.disabled=false;
+    }
+  }
+  breakRAF=requestAnimationFrame(frame);
+}
+
+function update(){LS=[];var P=parts();PP=P;analyse();simulateFailure(P);renderFailureReport();updateLoadUI();build(P);render2D(P);draw()}
 
 function setType(t){if(ST)stepEnd();$('more').value=(ROD[t]&&t!=='desb')?t:'';
   type=t;$('bMesa').setAttribute('aria-pressed',t==='mesa');$('bEst').setAttribute('aria-pressed',t==='est');$('bDes').setAttribute('aria-pressed',t==='desb');
-  build.set=0;buildSliders();update();
+  build.set=0;buildSliders();loads.forEach(function(l){l.x=clampN(l.x,-S.W/2,S.W/2);l.y=clampN(l.y,0,S.H);l.z=clampN(l.z,-S.D/2,S.D/2)});updateLoadUI();update();
 }
 $('bMesa').onclick=function(){setType('mesa')};
 $('bEst').onclick=function(){setType('est')};
@@ -504,7 +797,7 @@ $('copy').onclick=function(){var b=$('copy');
   catch(e){b.textContent='Não consegui copiar'}
   setTimeout(function(){b.textContent='Copiar lista de corte'},1800)};
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',update);
-buildSliders();update();resize();
+buildSliders();bindLoadControls();$('forceBreak').onclick=forceBreak;$('resetBreak').onclick=resetBreak;updateLoadUI();update();resize();
 </script>
 </body>
 </html>
